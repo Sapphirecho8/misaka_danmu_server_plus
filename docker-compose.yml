@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  app:
+    image: sapphirecho8/misaka_danmu_server_plus:latest
+    container_name: misaka_danmu_server_plus
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      - TZ=Asia/Shanghai
+      - DANMUAPI_DATABASE__TYPE=mysql
+      - DANMUAPI_DATABASE__HOST=db
+      - DANMUAPI_DATABASE__PORT=3306
+      - DANMUAPI_DATABASE__NAME=danmuapi
+      - DANMUAPI_DATABASE__USER=danmuapi
+      - DANMUAPI_DATABASE__PASSWORD=byAXwQLCNZuB9I9SUrF4IwUuHwVCQY1P
+      - DANMUAPI_SERVER__PORT=7768
+      - DANMUAPI_ADMIN__INITIAL_PASSWORD=vqKLaQfLiaZ4l2Op
+    ports:
+      - "7768:7768"
+    volumes:
+      - config-data:/app/config
+
+  db:
+    image: mysql:8.0
+    container_name: misaka_mysql
+    command: ["--default-authentication-plugin=mysql_native_password", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
+      - MYSQL_ROOT_PASSWORD=danmuapi_root
+      - MYSQL_DATABASE=danmuapi
+      - MYSQL_USER=danmuapi
+      - MYSQL_PASSWORD=byAXwQLCNZuB9I9SUrF4IwUuHwVCQY1P
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  config-data:
+  mysql-data:

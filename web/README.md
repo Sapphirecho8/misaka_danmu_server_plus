@@ -1,0 +1,6 @@
+- 1.进入项目/web目录
+- 2.执行命令 npm run install
+- 3.运行 npm run dev
+- 4.config.yml修改 打开 environment: development
+- 5.config.py修改 打开environment: str = "development"
+- 6.正常跑py项目，访问7768会自动跳转web项目dev

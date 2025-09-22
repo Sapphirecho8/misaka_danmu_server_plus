@@ -1,0 +1,190 @@
+import { useEffect, useState } from 'react'
+import { Button, Card, Form, Input, InputNumber, message, Modal, Table } from 'antd'
+import { listUsers, createUser, updateUser, getUserInfo } from '../../../apis'
+import { useMessage } from '../../../MessageContext'
+import PermissionEditor from '../../components/PermissionEditor'
+import { PERMISSIONS, defaultBoolOf } from '../../constants/permissions'
+
+export const Accounts = () => {
+  const [loading, setLoading] = useState(false)
+  const [users, setUsers] = useState([])
+  const [currentUser, setCurrentUser] = useState(null)
+  const [permModalOpen, setPermModalOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState(null)
+  const [permForm] = Form.useForm()
+  const [form] = Form.useForm()
+  const messageApi = useMessage()
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true)
+      const res = await listUsers()
+      setUsers(res.data)
+    } catch (e) {
+      messageApi.error('获取用户列表失败')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchUsers()
+    getUserInfo().then(res => setCurrentUser(res?.data)).catch(()=>setCurrentUser(null))
+  }, [])
+
+  const canEditTarget = (row) => {
+    if (!currentUser) return false
+    if (row?.id === currentUser.id) return false
+    const isSuperAdmin = (currentUser.username || '').toLowerCase() === 'admin'
+    if ((row?.username || '').toLowerCase() === 'admin') return false
+    if (isSuperAdmin) return true
+    const perms = currentUser.permissions || {}
+    return perms.editUsers === true
+  }
+
+  const initStatesFromPerms = (permsObj) => {
+    const out = {}
+    (PERMISSIONS || []).forEach(p => {
+      const v = (permsObj || {})[p.key]
+      if (v === true) out[p.key] = 'allow'
+      else if (v === false) out[p.key] = 'deny'
+      else out[p.key] = 'inherit'
+    })
+    return out
+  }
+
+  const openPermModal = (row) => {
+    setEditingUser(row)
+    const p = row.permissions || {}
+    permForm.setFieldsValue({
+      permStates: initStatesFromPerms(p),
+    })
+    setPermModalOpen(true)
+  }
+
+  const computeUpdateDelta = (existing, states) => {
+    const delta = {}
+    ;(PERMISSIONS || []).forEach(p => {
+      const st = (states || {})[p.key] || 'inherit'
+      const desired = (st === 'inherit') ? defaultBoolOf(p.key) : (st === 'allow')
+      const exists = (existing || {})
+      const had = Object.prototype.hasOwnProperty.call(exists, p.key) ? exists[p.key] : undefined
+      if (had === undefined) {
+        // 不存在：仅当偏离默认或需要显式覆盖时发送
+        const def = defaultBoolOf(p.key)
+        if (desired !== def) delta[p.key] = desired
+      } else if (had !== desired) {
+        // 已存在且不同：发送覆盖
+        delta[p.key] = desired
+      }
+    })
+    return delta
+  }
+
+  const savePerms = async () => {
+    try {
+      const v = await permForm.validateFields()
+      const states = v.permStates || {}
+      const delta = computeUpdateDelta(editingUser?.permissions || {}, states)
+      await updateUser(editingUser.id, { permissions: delta })
+      messageApi.success('权限已更新')
+      setPermModalOpen(false)
+      setEditingUser(null)
+      fetchUsers()
+    } catch (e) {
+      const detail = e?.detail || ''
+      messageApi.error(`更新失败${detail?': '+detail:''}`)
+    }
+  }
+
+  const columns = [
+    { title: 'ID', dataIndex: 'id', width: 80 },
+    { title: '用户名', dataIndex: 'username', width: 180 },
+    { title: '每小时限额', dataIndex: 'perHourLimit', width: 120 },
+    { title: '搜索数', dataIndex: 'searchCount', width: 120 },
+    { title: 'Token用量', dataIndex: 'tokenUsage', width: 120 },
+    { title: '弹幕下载量', dataIndex: 'downloadCount', width: 140 },
+    {
+      title: '操作',
+      key: 'action',
+      width: 140,
+      render: (_, row) => (
+        <Button size='small' type='link' disabled={!canEditTarget(row)} onClick={() => openPermModal(row)}>编辑权限</Button>
+      )
+    }
+  ]
+
+  const buildPermsForCreate = (states) => {
+    const out = {}
+    ;(PERMISSIONS || []).forEach(p => {
+      const st = (states || {})[p.key] || 'inherit'
+      if (st === 'allow') out[p.key] = true
+      else if (st === 'deny') out[p.key] = false
+      // inherit 不写入，后端使用默认
+    })
+    return out
+  }
+
+  const onCreate = async () => {
+    try {
+      const v = await form.validateFields()
+      const states = v.permStates || {}
+      const permsObj = buildPermsForCreate(states)
+      const payload = {
+        username: v.username,
+        password: v.password,
+        role: 'user',
+        perHourLimit: v.perHourLimit ?? null,
+        canCreateAdmin: false,
+        permissions: permsObj,
+      }
+      await createUser(payload)
+      messageApi.success('创建成功')
+      form.resetFields()
+      fetchUsers()
+    } catch (e) {
+      messageApi.error('创建失败')
+    }
+  }
+
+  return (
+    <div className='my-6'>
+      <Card loading={loading} title='账户管理'>
+        <div className='mb-4'>
+          <Table pagination={false} size='small' dataSource={users} columns={columns} rowKey='id' />
+        </div>
+        <Modal
+          title={`编辑权限 - ${editingUser?.username || ''}`}
+          open={permModalOpen}
+          onCancel={() => { setPermModalOpen(false); setEditingUser(null) }}
+          onOk={savePerms}
+          okText='保存'
+          width={900}
+        >
+          <Form form={permForm} layout='vertical'>
+            <Form.Item name='permStates' label='权限设置'>
+              <PermissionEditor />
+            </Form.Item>
+          </Form>
+        </Modal>
+        <Card title='新增用户' size='small'>
+          <Form form={form} layout='vertical'>
+            <Form.Item name='username' label='用户名' rules={[{ required: true, message: '请输入用户名'}]}>
+              <Input placeholder='用户名' />
+            </Form.Item>
+            <Form.Item name='password' label='初始密码' rules={[{ required: true, message: '请输入初始密码'}]}>
+              <Input.Password placeholder='初始密码' />
+            </Form.Item>
+            <Form.Item name='perHourLimit' label='每小时限额（留空为默认）'>
+              <InputNumber min={-1} style={{width:'100%'}} />
+            </Form.Item>
+            <Form.Item name='permStates' label='初始权限设置'>
+              <PermissionEditor />
+            </Form.Item>
+            <Button type='primary' onClick={onCreate}>创建</Button>
+          </Form>
+        </Card>
+      </Card>
+    </div>
+  )
+}

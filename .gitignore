@@ -1,0 +1,22 @@
+venv/*
+.venv/
+.venv_run/
+.idea/
+.vscode/
+.DS_Store
+
+src/**/__pycache__/
+src/**/.DS_Store
+
+# Local runtime and logs
+.env
+*.log
+local_run.pid
+local_run.log
+server.log
+server.pid
+config/logs/
+
+# User data caches
+config/danmaku
+config/image

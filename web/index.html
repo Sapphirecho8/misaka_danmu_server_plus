@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.png" />
+  <link rel="manifest" href="/dist/manifest.json" />
+  <!-- 新增：设置 Referrer Policy 为 no-referrer，以解决跨域图片防盗链问题 -->
+  <meta name="referrer" content="no-referrer">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000">
+  <link rel="apple-touch-icon" href="/images/pwa-192x192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="御阪弹幕">
+  <title>御阪网络弹幕服务</title>
+  <script>
+    // Force-unregister any previous service workers and clear caches to avoid stale UI cache
+    (function(){
+      if ('serviceWorker' in navigator) {
+        try { navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())); } catch(e){}
+      }
+      if (window.caches && caches.keys) {
+        try { caches.keys().then(keys => keys.forEach(k => caches.delete(k))); } catch(e){}
+      }
+    })();
+  </script>
+
+</head>
+
+<body>
+  <div id="root" class="h-screen"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
+</html>

@@ -1,0 +1,34 @@
+fastapi
+uvicorn[standard]
+aiomysql
+asyncpg
+SQLAlchemy[asyncio]
+greenlet
+apscheduler
+pydantic-settings
+httpx[socks]>=0.23.0
+# 使用固定的 passlib 和 bcrypt 版本以避免兼容性问题
+# passlib>=1.7.4 才与 bcrypt>=4.0 兼容
+passlib>=1.7.4
+bcrypt==4.0.1
+python-jose[cryptography]
+python-multipart
+# protobuf v4.x 引入了不兼容的变更，可能导致预编译的 _pb2.py 文件解析失败
+# 将其固定到 v3.x 的最后一个稳定版本以确保兼容性
+protobuf==3.20.3
+# 用于模糊字符串匹配，提高搜索结果排序的准确性
+thefuzz
+python-Levenshtein
+# 用于人人源的AES解密
+pycryptodome
+# 用于解析HTML
+beautifulsoup4
+lxml
+# 用于爱奇艺弹幕编码检测
+chardet
+# 用于简繁中文转换
+opencc-python-reimplemented
+# 用于非对称加密签名验证
+cryptography
+# 用于SM2/SM3/SM4国密算法
+gmssl

@@ -1,0 +1,151 @@
+@font-face {
+  font-family: "iconfont"; /* Project id 4997004 */
+  src: url('iconfont.woff2?t=1756359568910') format('woff2'),
+       url('iconfont.woff?t=1756359568910') format('woff'),
+       url('iconfont.ttf?t=1756359568910') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-setting:before {
+  content: "\e67d";
+}
+
+.icon-danmu:before {
+  content: "\e61f";
+}
+
+.icon-tv:before {
+  content: "\e6bc";
+}
+
+.icon-movie:before {
+  content: "\e61a";
+}
+
+.icon-jingzhun:before {
+  content: "\e60d";
+}
+
+.icon-tvlibrary:before {
+  content: "\e67c";
+}
+
+.icon-controlapi:before {
+  content: "\e65a";
+}
+
+.icon-stop:before {
+  content: "\e842";
+}
+
+.icon-comment:before {
+  content: "\e8e8";
+}
+
+.icon-clock:before {
+  content: "\e65b";
+}
+
+.icon-refresh:before {
+  content: "\e62e";
+}
+
+.icon-zengliang:before {
+  content: "\e6cf";
+}
+
+.icon-favorites-fill:before {
+  content: "\e83a";
+}
+
+.icon-favorites:before {
+  content: "\e83b";
+}
+
+.icon-book:before {
+  content: "\e607";
+}
+
+.icon-exchange:before {
+  content: "\e61e";
+}
+
+.icon-drag:before {
+  content: "\e600";
+}
+
+.icon-edit:before {
+  content: "\e7e2";
+}
+
+.icon-canshuzhihang:before {
+  content: "\e62d";
+}
+
+.icon-delete:before {
+  content: "\e64b";
+}
+
+.icon-copy:before {
+  content: "\e706";
+}
+
+.icon-checksurface:before {
+  content: "\e6e6";
+}
+
+.icon-start:before {
+  content: "\e615";
+}
+
+.icon-pause:before {
+  content: "\e86d";
+}
+
+.icon-error-fill:before {
+  content: "\e839";
+}
+
+.icon-shenglve:before {
+  content: "\e624";
+}
+
+.icon-search:before {
+  content: "\e621";
+}
+
+.icon-renwu:before {
+  content: "\e63f";
+}
+
+.icon-yuan:before {
+  content: "\e710";
+}
+
+.icon-rizhi:before {
+  content: "\e60c";
+}
+
+.icon-user:before {
+  content: "\e7ae";
+}
+
+.icon-key:before {
+  content: "\e7e1";
+}
+
+.icon-home:before {
+  content: "\e857";
+}
+
+.icon-danmukaiqi:before {
+  content: "\e613";
+}
+

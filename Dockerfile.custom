@@ -1,0 +1,45 @@
+# Minimal runtime image that includes our code changes:
+# - Backend: src/rate_limiter.py short-circuited (unlimited)
+# - Frontend: RateLimit tab removed, built dist included
+
+# --- Stage 1: Build Frontend ---
+FROM node:20-alpine AS fe
+WORKDIR /app/web
+COPY web/package*.json ./
+RUN npm ci
+COPY web/ ./
+RUN npm run build
+
+# --- Stage 2: Runtime ---
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    TZ=Asia/Shanghai \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
+
+WORKDIR /app
+
+# tzdata for timezone support; no build tools needed since we rely on wheels
+RUN set -ex \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python deps
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# App code (Python sources preserved; our changes are included)
+COPY src/ ./src/
+COPY static/ ./static/
+COPY config/ ./config/
+
+# Frontend build output
+COPY --from=fe /app/web/dist ./web/dist/
+
+EXPOSE 7768
+
+CMD ["python", "-m", "src.main"]
+

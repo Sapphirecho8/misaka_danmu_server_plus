@@ -1,0 +1,101 @@
+import { useMemo, useState } from 'react'
+import { Input, Collapse, Radio, Tag, Switch, Space, Button } from 'antd'
+import { PERMISSIONS, GROUP_ORDER, groupBy, defaultBoolOf, isDefaultAllow } from '../constants/permissions'
+
+/**
+ * PermissionEditor
+ * - 受控组件：value: { [key]: 'inherit'|'allow'|'deny' }
+ * - onChange: (next) => void
+ */
+export default function PermissionEditor({ value = {}, onChange }) {
+  const [search, setSearch] = useState('')
+  const [onlyChanged, setOnlyChanged] = useState(false)
+
+  const isChanged = (p) => {
+    const st = value[p.key] || (defaultBoolOf(p.key)?'allow':'deny')
+    const desired = (st === 'allow')
+    return desired !== defaultBoolOf(p.key)
+  }
+
+  const filtered = useMemo(() => {
+    const kw = (search || '').trim().toLowerCase()
+    const list = PERMISSIONS.filter(p => {
+      const text = (p.label + ' ' + p.key + ' ' + (p.group || '')).toLowerCase()
+      if (kw && !text.includes(kw)) return false
+      if (onlyChanged && !isChanged(p)) return false
+      return true
+    })
+    const grouped = groupBy(list, p => p.group || '其他')
+    const orderedGroups = GROUP_ORDER.filter(g => grouped[g] && grouped[g].length).map(g => ({ key: g, items: grouped[g] }))
+    // append any remaining groups
+    Object.keys(grouped).forEach(g => { if (!GROUP_ORDER.includes(g)) orderedGroups.push({ key: g, items: grouped[g] }) })
+    return orderedGroups
+  }, [search, onlyChanged, value])
+
+  const setState = (k, st) => {
+    const next = { ...(value || {}) }
+    next[k] = st
+    onChange?.(next)
+  }
+
+  const setGroupState = (group, st) => {
+    const keys = PERMISSIONS.filter(p => (p.group || '其他') === group).map(p => p.key)
+    const next = { ...(value || {}) }
+    keys.forEach(k => { next[k] = st })
+    onChange?.(next)
+  }
+
+  const radio = (p) => (
+    <Radio.Group
+      size='small'
+      value={value[p.key] || (defaultBoolOf(p.key)?'allow':'deny')}
+      onChange={e => setState(p.key, e.target.value)}
+      optionType='button'
+      buttonStyle='solid'
+    >
+            <Radio.Button value='allow'>允许</Radio.Button>
+      <Radio.Button value='deny'>拒绝</Radio.Button>
+    </Radio.Group>
+  )
+
+  return (
+    <div>
+      <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12}}>
+        <span style={{fontWeight:600}}>权限设置</span>
+        <span>
+          <Switch size='small' checked={onlyChanged} onChange={setOnlyChanged} />
+          <span style={{marginLeft:6}}>仅显示已修改</span>
+        </span>
+      </div>
+      <Collapse accordion>
+        {filtered.map(g => (
+          <Collapse.Panel
+            header={<div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <span>{g.key}（{g.items.length}）</span>
+              <Space size={8}>
+                <Button size='small' type='primary' onClick={e=>{e.stopPropagation(); setGroupState(g.key,'allow')}}>全允许</Button>
+                <Button size='small' danger onClick={e=>{e.stopPropagation(); setGroupState(g.key,'deny')}}>全拒绝</Button>
+              </Space>
+            </div>}
+            key={g.key}
+          >
+            {g.items.map(p => (
+              <div key={p.key} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'6px 0', borderBottom:'1px solid #f5f5f5'}}>
+                <div>
+                  <div style={{display:'flex',alignItems:'center', gap:8}}>
+                    <span>{p.label}</span>
+                    {p.danger ? <Tag color='red'>高危</Tag> : null}
+                    {isChanged(p) ? <Tag color='blue'>已修改</Tag> : null}
+                  </div>
+                </div>
+                <div>
+                  {radio(p)}
+                </div>
+              </div>
+            ))}
+          </Collapse.Panel>
+        ))}
+      </Collapse>
+    </div>
+  )
+}
