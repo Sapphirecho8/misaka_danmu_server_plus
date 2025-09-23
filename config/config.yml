@@ -16,7 +16,7 @@ database:
   host: "127.0.0.1"
   port: 3306
   user: "danmuapi"
-  password: "danmuapi" # 本地开发环境：已在 .env 中覆盖；此处保持与本地一致
+  password: "DanmuApi#P@ssw0rd"
   name: "danmuapi"
 # JWT (JSON Web Token) 配置
 jwt:

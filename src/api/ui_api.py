@@ -3088,11 +3088,14 @@ async def get_rate_limit_status(
         cur_full = await crud.get_user_full_by_id(session, current_user.id)
         cur_state = await crud.get_or_create_user_rate_state(session, current_user.id)
         cur_seconds_left = await crud.get_user_rate_seconds_until_reset(session, current_user.id)
+        # 将 -1（不限制）显示为 ∞（前端对 None 渲染为 ∞）
+        _lim = (cur_full or {}).get('perHourLimit')
+        _lim = None if (_lim is None or (_lim is not None and _lim < 0)) else _lim
         current_user_status = UserRateStatus(
             userId=current_user.id,
             username=current_user.username,
             used=cur_state.requestCount,
-            limit=(cur_full or {}).get('perHourLimit'),
+            limit=_lim,
             secondsUntilReset=cur_seconds_left
         )
     except Exception as e:
@@ -3125,11 +3128,14 @@ async def get_rate_limit_status(
                 try:
                     state = await crud.get_or_create_user_rate_state(session, u['id'])
                     seconds_left = await crud.get_user_rate_seconds_until_reset(session, u['id'])
+                    # 将 -1（不限制）显示为 ∞（前端对 None 渲染为 ∞）
+                    _ulim = u.get('perHourLimit')
+                    _ulim = None if (_ulim is None or (_ulim is not None and _ulim < 0)) else _ulim
                     users_status.append(UserRateStatus(
                         userId=u['id'],
                         username=u['username'],
                         used=state.requestCount,
-                        limit=u.get('perHourLimit'),
+                        limit=_ulim,
                         secondsUntilReset=seconds_left
                     ))
                 except Exception:

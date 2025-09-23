@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field, model_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import exc
 
-from .. import crud, models, tasks, utils
+from .. import crud, models, tasks, utils, security
 from ..rate_limiter import RateLimiter
 from ..config_manager import ConfigManager
 from ..database import get_db_session
@@ -314,6 +314,32 @@ class ControlMetadataSearchResponse(BaseModel):
     """用于外部API的元数据搜索响应模型"""
     results: List[models.MetadataDetailsResponse]
 
+# --- Helpers: API virtual user ---
+async def _get_or_create_api_user_id(session: AsyncSession) -> int:
+    """Return the user id for a special 'API' user used to aggregate external API usage.
+    Creates the user with unlimited per-hour limit (-1) if missing.
+    """
+    user = await crud.get_user_by_username_full(session, "API")
+    if user and user.get("id"):
+        if user.get("perHourLimit") != -1:
+            await crud.update_user_info(session, int(user["id"]), per_hour_limit=-1)
+        return int(user["id"])
+    # create it
+    import secrets as _secrets
+    pwd = _secrets.token_urlsafe(16)
+    password_hash = security.get_password_hash(pwd)
+    user_id = await crud.create_user_with_permissions(
+        session,
+        username="API",
+        password_hash=password_hash,
+        role="user",
+        per_hour_limit=-1,
+        can_create_admin=False,
+        permissions_json=None,
+        remark="External API usage aggregator"
+    )
+    return int(user_id)
+
 # --- API 路由 ---
 
 @router.post("/import/auto", status_code=status.HTTP_202_ACCEPTED, summary="全自动搜索并导入", response_model=ControlTaskResponse)
@@ -416,10 +442,14 @@ async def auto_import(
     task_title = " ".join(title_parts)
 
     try:
+        # resolve the special API user id for usage accounting
+        async with request.app.state.db_session_factory() as s:
+            api_user_id = await _get_or_create_api_user_id(s)
         task_coro = lambda session, cb: tasks.auto_search_and_import_task(
             payload, cb, session, config_manager, manager, metadata_manager, task_manager,
             rate_limiter=rate_limiter,
-            api_key=api_key
+            api_key=api_key,
+            user_id=api_user_id
         )
         task_id, _ = await task_manager.submit_task(task_coro, task_title, unique_key=unique_key)
         return {"message": "自动导入任务已提交", "taskId": task_id}
@@ -553,7 +583,8 @@ async def direct_import(
     task_manager: TaskManager = Depends(get_task_manager),
     manager: ScraperManager = Depends(get_scraper_manager),
     metadata_manager: MetadataSourceManager = Depends(get_metadata_manager),
-    rate_limiter: RateLimiter = Depends(get_rate_limiter)
+    rate_limiter: RateLimiter = Depends(get_rate_limiter),
+    config_manager: ConfigManager = Depends(get_config_manager),
 ):
     """
     ### 功能
@@ -599,6 +630,7 @@ async def direct_import(
         unique_key += f"-ep{item_to_import.currentEpisodeIndex}"
 
     try:
+        api_user_id = await _get_or_create_api_user_id(session)
         task_coro = lambda session, cb: tasks.generic_import_task(
             provider=item_to_import.provider,
             mediaId=item_to_import.mediaId,
@@ -608,10 +640,11 @@ async def direct_import(
             currentEpisodeIndex=item_to_import.currentEpisodeIndex,
             imageUrl=item_to_import.imageUrl, 
             year=item_to_import.year, doubanId=payload.doubanId,
+            config_manager=config_manager,
             metadata_manager=metadata_manager, tmdbId=payload.tmdbId, imdbId=payload.imdbId,
             tvdbId=payload.tvdbId, bangumiId=payload.bangumiId,
             progress_callback=cb, session=session, manager=manager, task_manager=task_manager,
-            rate_limiter=rate_limiter
+            rate_limiter=rate_limiter, user_id=api_user_id
         )
         task_id, _ = await task_manager.submit_task(task_coro, task_title, unique_key=unique_key)
         return {"message": "导入任务已提交", "taskId": task_id}
@@ -728,10 +761,11 @@ async def edited_import(
     unique_key = f"import-{task_payload.provider}-{task_payload.mediaId}-{episodes_hash}"
 
     try:
+        api_user_id = await _get_or_create_api_user_id(session)
         task_coro = lambda session, cb: tasks.edited_import_task(
             request_data=task_payload, progress_callback=cb, session=session,
             config_manager=config_manager, manager=manager, rate_limiter=rate_limiter,
-            metadata_manager=metadata_manager
+            metadata_manager=metadata_manager, user_id=api_user_id
         )
         task_id, _ = await task_manager.submit_task(task_coro, task_title, unique_key=unique_key)
         return {"message": "编辑后导入任务已提交", "taskId": task_id}
@@ -776,6 +810,7 @@ async def xml_import(
     unique_key = f"manual-import-{payload.sourceId}-{payload.episodeIndex}"
 
     try:
+        api_user_id = await _get_or_create_api_user_id(session)
         task_coro = lambda s, cb: tasks.manual_import_task(
             sourceId=payload.sourceId,
             animeId=anime_id,
@@ -786,7 +821,8 @@ async def xml_import(
             progress_callback=cb,
             session=s,
             manager=manager,
-            rate_limiter=rate_limiter
+            rate_limiter=rate_limiter,
+            user_id=api_user_id
         )
         task_id, _ = await task_manager.submit_task(task_coro, task_title, unique_key=unique_key)
         return {"message": "XML导入任务已提交", "taskId": task_id}
@@ -831,6 +867,7 @@ async def url_import(
     unique_key = f"manual-import-{payload.sourceId}-{payload.episodeIndex}"
 
     try:
+        api_user_id = await _get_or_create_api_user_id(session)
         task_coro = lambda s, cb: tasks.manual_import_task(
             sourceId=payload.sourceId,
             animeId=anime_id,
@@ -841,7 +878,8 @@ async def url_import(
             progress_callback=cb,
             session=s,
             manager=manager,
-            rate_limiter=rate_limiter
+            rate_limiter=rate_limiter,
+            user_id=api_user_id
         )
         task_id, _ = await task_manager.submit_task(task_coro, task_title, unique_key=unique_key)
         return {"message": "URL导入任务已提交", "taskId": task_id}
@@ -1103,8 +1141,9 @@ async def refresh_episode(
     """提交一个后台任务，为单个分集重新从其源网站获取最新的弹幕。"""
     info = await crud.get_episode_for_refresh(session, episodeId)
     if not info: raise HTTPException(404, "分集未找到")
+    api_user_id = await _get_or_create_api_user_id(session)
     task_id, _ = await task_manager.submit_task(
-        lambda s, cb: tasks.refresh_episode_task(episodeId, s, manager, rate_limiter, cb),
+        lambda s, cb: tasks.refresh_episode_task(episodeId, s, manager, rate_limiter, cb, user_id=api_user_id),
         f"外部API刷新分集: {info['title']}"
     )
     return {"message": "刷新分集任务已提交", "taskId": task_id}

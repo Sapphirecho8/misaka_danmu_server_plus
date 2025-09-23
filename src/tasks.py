@@ -1373,6 +1373,7 @@ async def auto_search_and_import_task(
     task_manager: TaskManager,
     rate_limiter: Optional[RateLimiter] = None,
     api_key: Optional[str] = None,
+    user_id: Optional[int] = None,
 ):
     """
     全自动搜索并导入的核心任务逻辑。
@@ -1627,7 +1628,7 @@ async def auto_search_and_import_task(
             currentEpisodeIndex=payload.episode, imageUrl=image_url, # 现在 imageUrl 已被正确填充
             doubanId=douban_id, tmdbId=tmdb_id, imdbId=imdb_id, tvdbId=tvdb_id, bangumiId=bangumi_id,
             progress_callback=cb, session=s, manager=scraper_manager, task_manager=task_manager,
-            rate_limiter=rate_limiter
+            rate_limiter=rate_limiter, user_id=user_id
         )
         # 修正：提交执行任务，并将其ID作为调度任务的结果
         # 修正：为任务标题添加季/集信息，以确保其唯一性，防止因任务名重复而提交失败。
