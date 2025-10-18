@@ -1,22 +1,21 @@
-# 御坂网络弹幕服务
+# 御坂网络弹幕服务_Plus
 
-[![GitHub](https://img.shields.io/badge/-GitHub-181717?logo=github)](https://github.com/l429609201/misaka_danmu_server)
-![GitHub License](https://img.shields.io/github/license/l429609201/misaka_danmu_server)
-![Docker Pulls](https://img.shields.io/docker/pulls/l429609201/misaka_danmu_server)
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/l429609201/misaka_danmu_server?color=blue&label=download&sort=semver)](https://github.com/l429609201/misaka_danmu_server/releases/latest)
-[![telegram](https://img.shields.io/static/v1?label=telegram&message=misaka_danmu_server&color=blue)](https://t.me/misaka_danmu_server)
+[![GitHub](https://img.shields.io/badge/-GitHub-181717?logo=github)](https://github.com/Sapphirecho8/misaka_danmu_server_plus)
+![GitHub License](https://img.shields.io/github/license/Sapphirecho8/misaka_danmu_server_plus)
+![Docker Pulls](https://img.shields.io/docker/pulls/sapphirecho8/misaka_danmu_server)
 
+基于项目[misaka_danmu_server](https://github.com/l429609201/misaka_danmu_server/)二次开发的版本，感谢原作者开发
 
+相较原项目，支持多用户管理，允许对单个用户配置权限和流控限制，允许创建注册链接，支持弹幕下载，弹幕token用量统计，允许管理员调节全局流控
 
 一个功能强大的自托管弹幕（Danmaku）聚合与管理服务，兼容 [dandanplay](https://api.dandanplay.net/swagger/index.html) API 规范。
 
 本项目旨在通过刮削主流视频网站的弹幕，为您自己的媒体库提供一个统一、私有的弹幕API。它自带一个现代化的Web界面，方便您管理弹幕库、搜索源、API令牌和系统设置。
 
-
-
 > [!IMPORTANT]
 > **按需使用，请勿滥用**
 > 本项目旨在作为个人媒体库的弹幕补充工具。所有弹幕数据均实时从第三方公开API或网站获取。请合理使用，避免对源站造成不必要的负担。过度频繁的请求可能会导致您的IP被目标网站屏蔽。
+> 由于本改版项目为多用户打造，允许管理员调节全局流控限制，请勿滥用
 
 > [!NOTE]
 > **网络与地区限制**
@@ -31,6 +30,50 @@
   - 创建和管理供第三方客户端（如 yamby, hills, 小幻影视）使用的API令牌。
   - 配置搜索源的优先级和启用状态。
   - 查看后台任务进度和系统日志。
+  - 允许对多用户进行权限管理，可以在生成新用户的时候自定义密码，配额，备注，权限，可以编辑已有用户密码，配额，备注，权限
+
+  ![image](https://raw.githubusercontent.com/Sapphirecho8/misaka_danmu_server_plus/refs/heads/main/img/10.png)
+
+  ![image](https://raw.githubusercontent.com/Sapphirecho8/misaka_danmu_server_plus/refs/heads/main/img/14.png)
+  
+  - 支持生成邀请链接注册
+  
+  ![image](https://raw.githubusercontent.com/Sapphirecho8/misaka_danmu_server_plus/refs/heads/main/img/11.png)
+  
+  ![image](https://raw.githubusercontent.com/Sapphirecho8/misaka_danmu_server_plus/refs/heads/main/img/12.png)
+  
+  ![image](https://raw.githubusercontent.com/Sapphirecho8/misaka_danmu_server_plus/refs/heads/main/img/13.png)
+  
+  - 创建私有和全局两种类型的弹幕token，其中私有弹幕token只允许自己和管理员查看，全局弹幕token允许所有人查看，允许生成指定token值
+  
+  ![image](https://raw.githubusercontent.com/Sapphirecho8/misaka_danmu_server_plus/refs/heads/main/img/1.png)
+  
+  ![image](https://raw.githubusercontent.com/Sapphirecho8/misaka_danmu_server_plus/refs/heads/main/img/2.png)
+  
+  - 允许为token上锁，适配多人使用同一账户的情形，上锁后只有管理员能对该token进行修改，普通用户不允许进行删除等操作
+
+  ![image](https://raw.githubusercontent.com/Sapphirecho8/misaka_danmu_server_plus/refs/heads/main/img/9.png)
+  
+  - 允许统计全局token用量，并绘制图表
+  
+  ![image](https://raw.githubusercontent.com/Sapphirecho8/misaka_danmu_server_plus/refs/heads/main/img/3.png)
+  
+  - 允许统计全局下载配额使用情况，并绘制图表
+  
+  ![image](https://raw.githubusercontent.com/Sapphirecho8/misaka_danmu_server_plus/refs/heads/main/img/4.png)
+  
+  ![image](https://raw.githubusercontent.com/Sapphirecho8/misaka_danmu_server_plus/refs/heads/main/img/5.png)
+  
+  - 允许修改全局下载配额，**请勿滥用**
+  
+  ![image](https://raw.githubusercontent.com/Sapphirecho8/misaka_danmu_server_plus/refs/heads/main/img/6.png)
+  
+  - 允许对单用户进行流控限制
+  
+  ![image](https://raw.githubusercontent.com/Sapphirecho8/misaka_danmu_server_plus/refs/heads/main/img/7.png)
+  
+  ![image](https://raw.githubusercontent.com/Sapphirecho8/misaka_danmu_server_plus/refs/heads/main/img/8.png)
+  
 - **元数据整合**: 支持与 TMDB, TVDB, Bangumi, Douban, IMDb 集成，丰富您的媒体信息。
 - **自动化**: 支持通过 Webhook 接收来自 Sonarr, Radarr, Emby 等服务的通知，实现全自动化的弹幕导入。
 - **灵活部署**: 提供 Docker 镜像和 Docker Compose 文件，方便快速部署。
@@ -69,183 +112,94 @@
 
 - 请不要在 ***B站*** 或中国大陆社交平台发布视频或文章宣传本项目
 
-## 🚀 快速开始 (使用 Docker Compose)
+## 🚀 快速开始
 
-
-推荐使用 Docker 和 Docker Compose 进行一键部署。
-
-### 步骤 1: 准备 `docker-compose.yaml`
-
-1.  在一个合适的目录（例如 `~/danmuku`）下，创建 `docker-compose.yaml` 文件和所需的文件夹 `config，db-data`。
+1.  在一个合适的目录（例如 `/opt/danmuku`）下，创建 `docker-compose.yaml` 文件=。
 
 
     ```bash
-    mkdir -p ~/danmuku
-    cd ~/danmuku
-    mkdir db-data,config                 
-    touch docker-compose.yaml
+    mkdir -p /opt/danmuku && cd /opt/danmuku                
+    nano docker-compose.yaml
     ```
 
-2.  根据您选择的数据库，将以下内容之一复制到 `docker-compose.yaml` 文件中。
+2.  将以下内容复制到 `docker-compose.yaml` 文件中。
 
-#### 方案 A: 使用 MySQL (推荐)
-
+推荐使用```openssl rand -hex 32```来生成新 `DANMUAPI_JWT__SECRET_KEY` 值
+请一定要修改 `MYSQL_ROOT_PASSWORD`, `MYSQL_PASSWORD`(与`DANMUAPI_DATABASE__PASSWORD`一并修改), `DANMUAPI_ADMIN__INITIAL_PASSWORD`, `DANMUAPI_JWT__SECRET_KEY`
 
 ```yaml
-version: "3.8"
 services:
-  mysql:
-    image: mysql:8.1.0-oracle
-    container_name: danmu-mysql
-    restart: unless-stopped
-    environment:
-      # !!! 重要：请务必替换为您的强密码 !!!
-      MYSQL_ROOT_PASSWORD: "your_strong_root_password"                  #数据库root密码
-      MYSQL_DATABASE: "danmuapi"                                        #数据库名称
-      MYSQL_USER: "danmuapi"                                            #数据库用户名
-      MYSQL_PASSWORD: "your_strong_user_password"                       #数据库密码
-      TZ: "Asia/Shanghai"
-    volumes:
-      - ./db-data:/var/lib/mysql
+  db:
+    image: mysql:8.0
+    container_name: misaka_mysql
     command:
-      - '--character-set-server=utf8mb4'
-      - '--collation-server=utf8mb4_unicode_ci'
-      - '--expire_logs_days=3' # 自动清理超过3天的binlog日志
-      - '--binlog_expire_logs_seconds=259200' # 兼容MariaDB的等效设置 (3天)
+      - "--default-authentication-plugin=mysql_native_password"
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+      - "--expire_logs_days=3"
+      - "--binlog_expire_logs_seconds=259200"
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: "d*^hlgaYqV1QkgI8"
+      MYSQL_DATABASE: danmuapi
+      MYSQL_USER: danmuapi
+      MYSQL_PASSWORD: "nLpOh@39VmtxAU0$"
+    volumes:
+      - mysql-data:/var/lib/mysql
     healthcheck:
-      # 使用mysqladmin ping命令进行健康检查，通过环境变量引用密码
-      test: ["CMD-SHELL", "mysqladmin ping -u$$MYSQL_USER -p$$MYSQL_PASSWORD"]
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -p$${MYSQL_ROOT_PASSWORD} --silent"]
       interval: 5s
       timeout: 3s
-      retries: 5
-      start_period: 30s
+      retries: 10
+      start_period: 20s
 
-    networks:
-      - misaka-net
-
-  danmu-app:
-    image: l429609201/misaka_danmu_server:latest
-    container_name: misaka-danmu-server
+  app:
+    image: sapphirecho8/misaka_danmu_server_plus:latest
+    container_name: misaka_danmu_server_plus
     restart: unless-stopped
     depends_on:
-      mysql:
+      db:
         condition: service_healthy
     environment:
-      # 设置运行容器的用户和组ID，以匹配您宿主机的用户，避免挂载卷的权限问题。
-      - PUID=1000
-      - PGID=1000
-      - UMASK=0022
-      - TZ=Asia/Shanghai
-      # --- 数据库连接配置 ---
-      - DANMUAPI_DATABASE__TYPE=mysql                         # 数据库类型
-      - DANMUAPI_DATABASE__HOST=mysql                         # 使用服务名
-      - DANMUAPI_DATABASE__PORT=3306                          # 端口号
-      - DANMUAPI_DATABASE__NAME=danmuapi                      # 数据库名称
-      # !!! 重要：请使用上面mysql容器相同的用户名和密码 !!!
-      - DANMUAPI_DATABASE__USER=danmuapi                      #数据库用户名
-      - DANMUAPI_DATABASE__PASSWORD=your_strong_user_password #数据库密码
-      # --- 初始管理员配置 ---
-      - DANMUAPI_ADMIN__INITIAL_USER=admin
-    volumes:
-      - ./config:/app/config
+      TZ: Asia/Shanghai
+      DANMUAPI_DATABASE__TYPE: mysql
+      DANMUAPI_DATABASE__HOST: db
+      DANMUAPI_DATABASE__PORT: 3306
+      DANMUAPI_DATABASE__NAME: danmuapi
+      DANMUAPI_DATABASE__USER: danmuapi
+      DANMUAPI_DATABASE__PASSWORD: "nLpOh@39VmtxAU0$"
+      DANMUAPI_SERVER__PORT: 7768
+      DANMUAPI_ADMIN__INITIAL_USER: admin
+      DANMUAPI_ADMIN__INITIAL_PASSWORD: "CrS@Tp9@Xl92sXGz"
+      DANMUAPI_JWT__SECRET_KEY: "2b6d1beac43cd6fa97526ad612d4fa7dc8d8859d2257499329abacc54e0f92cf"
     ports:
       - "7768:7768"
-    networks:
-      - misaka-net
+    volumes:
+      - config-data:/app/config
 
-networks:
-  misaka-net:
-    driver: bridge
+volumes:
+  config-data:
+  mysql-data:
 ```
 
-#### 方案 B: 使用 PostgreSQL (可选)
-
-```yaml
-version: "3.8"
-services:
-  postgres:
-    image: postgres:16
-    container_name: danmu-postgres
-    restart: unless-stopped
-    environment:
-      # !!! 重要：请务必替换为您的强密码 !!!
-      POSTGRES_PASSWORD: "your_strong_postgres_password"               #数据库密码
-      POSTGRES_USER: "danmuapi"                                        #数据库用户名
-      POSTGRES_DB: "danmuapi"                                          #数据库名称
-      TZ: "Asia/Shanghai"
-    volumes:
-      - ./db-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U danmuapi -d danmuapi"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-      start_period: 30s
-    networks:
-      - misaka-net
-
-  danmu-app:
-    image: l429609201/misaka_danmu_server:latest
-    container_name: misaka-danmu-server
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      # 设置运行容器的用户和组ID，以匹配您宿主机的用户，避免挂载卷的权限问题。
-      - PUID=1000
-      - PGID=1000
-      - UMASK=0022
-      - TZ=Asia/Shanghai
-      # --- 数据库连接配置 ---
-      - DANMUAPI_DATABASE__TYPE=postgresql                              # 数据库类型
-      - DANMUAPI_DATABASE__HOST=postgres                                # 使用服务名
-      - DANMUAPI_DATABASE__PORT=5432                                    # 数据库端口
-      - DANMUAPI_DATABASE__NAME=danmuapi                                # 数据库名称
-      # !!! 重要：请使用上面postgres容器相同的用户名和密码 !!!
-      - DANMUAPI_DATABASE__USER=danmuapi                                # 数据库用户名    
-      - DANMUAPI_DATABASE__PASSWORD=your_strong_postgres_password       # 数据库密码
-      # --- 初始管理员配置 ---
-      - DANMUAPI_ADMIN__INITIAL_USER=admin
-    volumes:
-      - ./config:/app/config
-    ports:
-      - "7768:7768"
-
-    networks:
-      - misaka-net
-
-networks:
-  misaka-net:
-    driver: bridge
-
-```
-
-### 步骤 2: 修改配置并启动
-
-1.  **重要**: 打开您刚刚创建的 `docker-compose.yaml` 文件，将所有 `your_strong_..._password` 替换为您自己的安全密码。
-    -   对于MySQL，您需要修改 `MYSQL_ROOT_PASSWORD`, `MYSQL_PASSWORD` (两处) 和 `healthcheck` 中的密码。
-    -   对于PostgreSQL，您需要修改 `POSTGRES_PASSWORD` 和 `DANMUAPI_DATABASE__PASSWORD`。
-2.  在 `docker-compose.yaml` 所在目录运行命令启动应用：
-    ```bash
-    docker-compose up -d
-
-    ```
-
-### 步骤 3: 访问和配置
+3. 保存后，请使用 `docker compose up -d` 进行部署
+   
+## 访问和配置
 
 - **访问Web UI**: 打开浏览器，访问 `http://<您的服务器IP>:7768`。
 - **初始登录**:
   - 用户名: `admin` (或您在环境变量中设置的值)。
-  - 密码: 首次启动时会在容器的日志中生成一个随机密码。请使用 `docker logs misaka-danmu-server` 查看。
-- **开始使用**: 登录后，请先在 "设置" -> "账户安全" 中修改您的密码，然后在 "搜索源" 和 "设置" 页面中配置您的API密钥。
+  - 密码:  您在环境变量中设置的 `DANMUAPI_ADMIN__INITIAL_PASSWORD` 值。
+- **开始使用**: 登录后，可以在 "外部控制" 目录下的 "API密钥" 页面中配置您的API密钥。
 
 ## 客户端配置
 
 ### 1. 获取弹幕 Token
 
 - 在 Web UI 的 "弹幕Token" 页面，点击 "添加Token" 来创建一个新的访问令牌。
-- 创建后，您会得到一串随机字符，这就是您的弹幕 Token。
+- 如果选择生成方式为随机生成，那么创建后，您会得到一串随机字符，这就是您的弹幕 Token。
+- 如果选择生成方式为自定义，那么创建后，您刚才自定义的值就是您的弹幕 Token。
 - 可通过配置自定义域名之后直接点击复制，会帮你拼接好相关的链接
 
 ### 2. 配置弹幕接口
@@ -325,7 +279,7 @@ networks:
 
 ## 🤖 Telegram Bot 集成
 
-[balge](https://github.com/balge) 开发了一个功能强大的 Telegram Bot，可以帮助您通过聊天界面管理您的弹幕服务器。（弹幕库版本要大于v2.0.4才可以使用）
+[balge](https://github.com/balge) 开发了一个功能强大的 Telegram Bot，可以帮助您通过聊天界面管理您的弹幕服务器。
 
 **项目地址**: [misaka-danmuku-bot](https://github.com/balge/misaka-danmuku-bot)
 
@@ -334,47 +288,10 @@ networks:
 - 管理媒体库、数据源和分集。
 - 查看和管理后台任务。
 
-
-## 常见问题
-
-### 忘记密码怎么办？
-
-如果您忘记了管理员密码，可以通过以下步骤在服务器上重置：
-
-1.  通过 SSH 或其他方式登录到您的服务器。
-
-2.  进入您存放 `docker-compose.yml` 的目录。
-
-3.  执行以下命令来重置指定用户的密码。请将 `<username>` 替换为您要重置密码的用户名（例如 `admin`）。
-
-    ```bash
-     docker-compose exec danmu-api python -m src.reset_password <username>
-    ```
-
-    > **注意**: 如果您没有使用 `docker-compose`，或者您的容器名称不是 `danmu-api`，请使用 `docker exec` 命令：
-    > `docker exec <您的容器名称> python -m src.reset_password <username>`
-
-4.  命令执行后，终端会输出一个新的随机密码。请立即使用此密码登录，并在 "设置" -> "账户安全" 页面中修改为您自己的密码。
-
-### 数据库文件越来越大怎么办？
-
-随着时间的推移，数据库占用的磁盘空间可能会逐渐增大。这通常由两个原因造成：
-
-1.  **应用日志**: 任务历史、API访问记录等会存储在数据库中。这些日志会由内置的 **“数据库维护”** 定时任务自动清理（默认保留最近3天）。
-2.  **MySQL二进制日志 (Binlog)**: 这是MySQL用于数据恢复和主从复制的日志，如果不进行管理，它会持续增长。
-
-本项目内置的“数据库维护”任务会**尝试自动清理**旧的Binlog文件。但由于权限问题，您可能会在日志中看到“Binlog 清理失败”的警告。这是一个正常且可安全忽略的现象。
-
-如果您关心磁盘空间占用，并希望启用Binlog的自动清理功能，请参阅详细的解决方案：
-
-- **[数据库维护与Binlog清理说明](./数据库维护说明.md)**
-
-> **对于PostgreSQL用户**: PostgreSQL没有Binlog机制，其WAL日志通常会自动管理，因此空间占用问题没有MySQL那么突出。您只需关注应用日志的自动清理即可。
-
-
-
 ### 贡献者
-
+<a href="https://github.com/Sapphirecho8/misaka_danmu_server_plus/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Sapphirecho8/misaka_danmu_server_plus" alt="contributors" />
+</a>
 <a href="https://github.com/l429609201/misaka_danmu_server/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=l429609201/misaka_danmu_server" alt="contributors" />
 </a>
@@ -385,3 +302,4 @@ networks:
  - [emby-toolkit](https://github.com/hbq0405/emby-toolkit)      
  - [swagger-ui](https://github.com/swagger-api/swagger-ui)
  - [imdbsource](https://github.com/wumode/MoviePilot-Plugins/tree/main/plugins.v2/imdbsource)
+ - [misaka_danmu_server](https://github.com/l429609201/misaka_danmu_server/)
